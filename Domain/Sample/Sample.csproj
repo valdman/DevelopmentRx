@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Hangfire.Core, Version=1.6.21.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\.nuget\packages\hangfire.core\1.6.21\lib\netstandard1.3\Hangfire.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RxModellingLoop\RxModellingLoop\RxModellingLoop.csproj" />
+  </ItemGroup>
+</Project>
