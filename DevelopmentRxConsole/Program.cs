@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -11,39 +10,37 @@ using Sample;
 
 namespace DevelopmentRxConsole
 {
-    class Program
+    internal static class Program
     {
-        static void Run(IComponentContext c)
+        private static Task Run(IComponentContext c)
         {
             var broker = c.Resolve<EventBroker>();
+            var timeScheduler = new ModelTimeScheduler(ModelTimeStep.Day, DateTimeOffset.Parse("2019-01-01"));
                 
-            var manager = c.Resolve<Manager>();
-            var dev1 = c.Resolve<Developer>(new NamedParameter("name", "Boris"));
-            var dev2 = c.Resolve<Developer>(new NamedParameter("name", "Mosh"));
-            var dev3 = c.Resolve<Developer>(new NamedParameter("name", "Sus"));
+            var manager = c.Resolve<Manager>(new NamedParameter("timeScheduler", timeScheduler));
+            var dev1 = c.Resolve<Developer>(
+                new NamedParameter("timeScheduler", timeScheduler), 
+                new NamedParameter("name", "Boris"));
+            var dev2 = c.Resolve<Developer>(
+                new NamedParameter("timeScheduler", timeScheduler), 
+                new NamedParameter("name", "Mosh"));
+            var dev3 = c.Resolve<Developer>(
+                new NamedParameter("timeScheduler", timeScheduler), 
+                new NamedParameter("name", "Sus"));
 
-            var loopRunner = new EventLoopRunner(ModelTimeStep.Day, DateTimeOffset.Now);
-            var loop1 = loopRunner.RunEventLoop(broker, time =>
-            {
-                time.OnUniformTestPassed(t =>
+            var loop = new EventLoop(timeScheduler, broker);
+
+            return loop.Run(time =>
                 {
-                    manager.GiveNewTaskTo(t, $"l1 t1 at {t.AsOffset():dd-MM}");
-                }, 0.1);
-                time.OnUniformTestPassed(t =>
-                {
-                    manager.GiveNewTaskTo(t, $"l1 t2 at {t.AsOffset():dd-MM}");
-                }, 0.5);
-                time.OnUniformTestPassed(t =>
-                {
-                    manager.GiveNewTaskTo(t, $"l1 t3 at {t.AsOffset():dd-MM}");
-                }, 0.2);
-            }, 10);
-            
-            Thread.Sleep(TimeSpan.FromSeconds(2));
-            loop1.Dispose();
+                    time.OnUniformTestPassed(t =>
+                    {
+                        manager.GiveNewTaskToTeam("1");
+                    }, 0.2);
+                    
+                }, 15);
         }
-        
-        static void Main(string[] args)
+
+        private static void Main()
         {
             GlobalConfiguration.Configuration.UseMemoryStorage();
             var options = new BackgroundJobServerOptions
@@ -54,16 +51,20 @@ namespace DevelopmentRxConsole
             var server = new BackgroundJobServer(options);
             
             var cb = new ContainerBuilder();
-            cb.RegisterType<EventBroker>().InstancePerLifetimeScope();
-            cb.RegisterType<Manager>().SingleInstance();
+            cb.RegisterType<EventBroker>().SingleInstance();
+            cb.RegisterType<ModelTimeScheduler>().InstancePerDependency();
+            cb.Register<Manager>((c, p) =>
+                new Manager(
+                    p.Named<ModelTimeScheduler>("timeScheduler"), c.Resolve<EventBroker>()
+                )).SingleInstance();
             cb.Register((c, p) =>
                 new Developer(
-                    c.Resolve<EventBroker>(), p.Named<string>("name")
+                    p.Named<ModelTimeScheduler>("timeScheduler"), c.Resolve<EventBroker>(), p.Named<string>("name")
             ));
 
             using (var c = cb.Build())
             {
-                Run(c);
+                Run(c).Wait();
             }
             server.Dispose();
         }

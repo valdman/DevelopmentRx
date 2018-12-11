@@ -6,11 +6,13 @@ namespace Sample
 {
     public class Actor
     {
-        protected EventBroker broker { get; }
+        protected readonly ModelTimeScheduler TimeScheduler;
+        protected readonly EventBroker Broker;
 
-        public Actor(EventBroker broker)
+        public Actor(ModelTimeScheduler timeScheduler, EventBroker broker)
         {
-            this.broker = broker ?? throw new ArgumentNullException(paramName: nameof(broker));
+            TimeScheduler = timeScheduler;
+            this.Broker = broker ?? throw new ArgumentNullException(paramName: nameof(broker));
         } 
     }
 }

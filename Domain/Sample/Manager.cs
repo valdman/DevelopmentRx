@@ -7,14 +7,14 @@ namespace Sample
 {
     public class Manager : Actor
     {
-        public Manager(EventBroker broker) : base(broker)
+        public Manager(ModelTimeScheduler timeScheduler, EventBroker broker) : base(timeScheduler, broker)
         {
         }
 
-        public void GiveNewTaskTo(ModelTime time, string task)
+        public void GiveNewTaskToTeam(string task)
         {
-            Console.WriteLine($"Publishing {task}");
-            broker.Publish(new NewDemandingsPublished(time, task));
+            Console.WriteLine($"Publish {task} on {TimeScheduler.CurrentTime.AsOffset():dd-MM}");
+            Broker.Publish(new NewDemandingsPublished(task));
         }
     }
 }

@@ -16,6 +16,21 @@ namespace RxModellingLoop.TimeScheduling
             throw new NotImplementedException();
             //return new ModelTime(left.Ticks - right.Ticks);
         }
+
+        public static bool operator >(ModelTime left, ModelTime right)
+        {
+            return new TimeRelationalComparer().Compare(left, right) == 1;
+        }
+        
+        public static bool operator <(ModelTime left, ModelTime right)
+        {
+            return new TimeRelationalComparer().Compare(left, right) == -1;
+        }
+
+        public bool TickEqual(ModelTime right)
+        {
+            return Ticks == right.Ticks;
+        }
          
         public override string ToString()
         {
@@ -52,19 +67,19 @@ namespace RxModellingLoop.TimeScheduling
                     throw new ArgumentOutOfRangeException();
             }
 
-            return _begin + span(Ticks);
+            return Begin + span(Ticks);
         }
             
         public ModelTime(int ticks, ModelTimeStep step, DateTimeOffset begin)
         {
-            _begin = begin;
+            Begin = begin;
             Ticks = ticks;
             Step = step;
         }
 
         public int Ticks { get; internal set; }
         internal ModelTimeStep Step { get; }
-        private readonly DateTimeOffset _begin;
+        public DateTimeOffset Begin { get; }
         
         private sealed class TimeRelationalComparer : IComparer<ModelTime>
         {

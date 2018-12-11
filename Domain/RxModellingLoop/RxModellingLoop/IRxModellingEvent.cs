@@ -4,6 +4,5 @@ namespace RxModellingLoop
 {
     public interface IRxModellingEvent
     {
-        ModelTime TimeOccured { get; }
     }
 }

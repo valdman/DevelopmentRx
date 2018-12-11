@@ -5,13 +5,11 @@ namespace Sample.Events
 {
     public class NewDemandingsPublished : IRxModellingEvent
     {
-        public NewDemandingsPublished(ModelTime time, string description)
+        public NewDemandingsPublished(string description)
         {
-            TimeOccured = time;
             Description = description;
         }
         
         public string Description { get; }
-        public ModelTime TimeOccured { get; }
     }
 }
