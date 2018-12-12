@@ -19,9 +19,9 @@ namespace RxModellingLoop
                 CancellationTokenSource = cts;
                 TimeScheduler = scheduler;
                 EventBroker = broker;
-
             }
 
+            //TODO: Enable stop on ModelTimeSpan, not just 'tick number'
             public Task Run(Action<ModelTime> onLoopStep, int stop = -1)
             {
                 var ct = CancellationTokenSource.Token;
@@ -38,7 +38,7 @@ namespace RxModellingLoop
                     {
                         TimeScheduler.SetTime(new ModelTime(
                             TimeScheduler.CurrentTime.Ticks + 1,
-                            TimeScheduler.CurrentTime.Step,
+                            TimeScheduler.TimeStep,
                             TimeScheduler.CurrentTime.Begin)
                         );
                         onLoopStep(TimeScheduler.CurrentTime);

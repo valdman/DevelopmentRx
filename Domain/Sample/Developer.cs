@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Hangfire;
 using RxModellingLoop;
 using RxModellingLoop.TimeScheduling;
 using Sample.Events;
@@ -21,11 +20,11 @@ namespace Sample
 
         public void DevelopTask(string taskToDo)
         {
-            Console.WriteLine($"Start {taskToDo} on {TimeScheduler.CurrentTime.AsOffset():dd-MM} by ${Name}");
-            AbortCurrentJob = TimeScheduler.Schedule(new ModelTime(TimeScheduler.CurrentTime.Ticks + 5, ModelTimeStep.Day, TimeScheduler.CurrentTime.Begin),
+            Console.WriteLine($"Start {taskToDo} on {TimeScheduler.CurrentTime} by ${Name}");
+            AbortCurrentJob = TimeScheduler.Schedule(ModelTimeSpan.FromModelTimeUnits(5),
                 () =>
                 {
-                    Console.WriteLine($"Finish {taskToDo} on {TimeScheduler.CurrentTime.AsOffset():dd-MM} by ${Name}");
+                    Console.WriteLine($"Finish {taskToDo} on {TimeScheduler.CurrentTime} by ${Name}");
                 });
         }
         

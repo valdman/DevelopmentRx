@@ -5,18 +5,6 @@ namespace RxModellingLoop.TimeScheduling
 {
     public struct ModelTime
     {
-        public static ModelTime operator+ (ModelTime left, ModelTime right)
-        {
-            throw new NotImplementedException();
-            //return new ModelTime(left.Ticks + right.Ticks);
-        }
-            
-        public static ModelTime operator- (ModelTime left, ModelTime right)
-        {    
-            throw new NotImplementedException();
-            //return new ModelTime(left.Ticks - right.Ticks);
-        }
-
         public static bool operator >(ModelTime left, ModelTime right)
         {
             return new TimeRelationalComparer().Compare(left, right) == 1;
@@ -26,60 +14,29 @@ namespace RxModellingLoop.TimeScheduling
         {
             return new TimeRelationalComparer().Compare(left, right) == -1;
         }
-
-        public bool TickEqual(ModelTime right)
-        {
-            return Ticks == right.Ticks;
-        }
-         
+        
         public override string ToString()
         {
             return Ticks.ToString();
         }
 
-        public DateTimeOffset AsOffset()
+        public bool TickEqual(ModelTime right)
         {
-            Func<int, TimeSpan> span;
-            switch (Step)
-            {
-                case ModelTimeStep.Millisecond:
-                    span = (t) => TimeSpan.FromMilliseconds(t);
-                    break;
-                case ModelTimeStep.Second:
-                    span = (t) => TimeSpan.FromSeconds(t);
-                    break;
-                case ModelTimeStep.Minute:
-                    span = (t) => TimeSpan.FromMinutes(t);
-                    break;
-                case ModelTimeStep.Hour:
-                    span = (t) => TimeSpan.FromHours(t);
-                    break;
-                case ModelTimeStep.Day:
-                    span = (t) => TimeSpan.FromDays(t);
-                    break;
-                case ModelTimeStep.Month:
-                    span = (t) => TimeSpan.FromDays(t * 30);
-                    break;
-                case ModelTimeStep.Year:
-                    span = (t) => TimeSpan.FromDays(365 * t);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return Begin + span(Ticks);
+            return Ticks == right.Ticks;
         }
             
         public ModelTime(int ticks, ModelTimeStep step, DateTimeOffset begin)
         {
+            if (step == ModelTimeStep.Undefined)
+            {
+                throw new ArgumentException("Model time step couldn't be Undefined. (This exception can be triggered by using 0 as ModelTimeStep)");
+            }
             Begin = begin;
             Ticks = ticks;
-            Step = step;
         }
 
-        public int Ticks { get; internal set; }
-        internal ModelTimeStep Step { get; }
-        public DateTimeOffset Begin { get; }
+        internal int Ticks { get; }
+        internal DateTimeOffset Begin { get; }
         
         private sealed class TimeRelationalComparer : IComparer<ModelTime>
         {
@@ -91,6 +48,5 @@ namespace RxModellingLoop.TimeScheduling
                 return x.Ticks.CompareTo(y.Ticks);
             }
         }
-        public static IComparer<ModelTime> TimeComparer { get; } = new TimeRelationalComparer();
     }
 }

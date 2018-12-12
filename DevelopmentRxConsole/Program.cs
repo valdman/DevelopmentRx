@@ -15,7 +15,8 @@ namespace DevelopmentRxConsole
         private static Task Run(IComponentContext c)
         {
             var broker = c.Resolve<EventBroker>();
-            var timeScheduler = new ModelTimeScheduler(ModelTimeStep.Day, DateTimeOffset.Parse("2019-01-01"));
+            var begin = DateTimeOffset.Parse("2019-01-01");
+            var timeScheduler = new ModelTimeScheduler(ModelTimeStep.Day, begin);
                 
             var manager = c.Resolve<Manager>(new NamedParameter("timeScheduler", timeScheduler));
             var dev1 = c.Resolve<Developer>(
@@ -30,14 +31,20 @@ namespace DevelopmentRxConsole
 
             var loop = new EventLoop(timeScheduler, broker);
 
+            var a = ModelTimeSpan.FromModelTimeUnits(3);
+
+            timeScheduler.Schedule(ModelTimeSpan.FromModelTimeUnits(3), () =>
+            {
+                Console.WriteLine("hui"); 
+            });
             return loop.Run(time =>
+            {
+                time.OnUniformTestPassed(t =>
                 {
-                    time.OnUniformTestPassed(t =>
-                    {
-                        manager.GiveNewTaskToTeam("1");
-                    }, 0.2);
+                    manager.GiveNewTaskToTeam("1");
+                }, density: 0.2);
                     
-                }, 15);
+            }, 15);
         }
 
         private static void Main()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using RxModellingLoop;
 using RxModellingLoop.TimeScheduling;
 using Sample.Events;
 
@@ -13,7 +14,7 @@ namespace Sample
 
         public void GiveNewTaskToTeam(string task)
         {
-            Console.WriteLine($"Publish {task} on {TimeScheduler.CurrentTime.AsOffset():dd-MM}");
+            Console.WriteLine($"Publish {task} on {TimeScheduler.CurrentTime}");
             Broker.Publish(new NewDemandingsPublished(task));
         }
     }
