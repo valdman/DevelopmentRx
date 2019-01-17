@@ -14,6 +14,7 @@ namespace DevelopmentRxConsole
     {
         private static Task Run(IComponentContext c)
         {
+            #region DI_Load
             var broker = c.Resolve<EventBroker>();
             var begin = DateTimeOffset.Parse("2019-01-01");
             var timeScheduler = new ModelTimeScheduler(ModelTimeStep.Day, begin);
@@ -21,13 +22,14 @@ namespace DevelopmentRxConsole
             var manager = c.Resolve<Manager>(new NamedParameter("timeScheduler", timeScheduler));
             var dev1 = c.Resolve<Developer>(
                 new NamedParameter("timeScheduler", timeScheduler), 
-                new NamedParameter("name", "Boris"));
+                new NamedParameter("name", "Борис"));
             var dev2 = c.Resolve<Developer>(
                 new NamedParameter("timeScheduler", timeScheduler), 
-                new NamedParameter("name", "Mosh"));
+                new NamedParameter("name", "Дмитрий"));
             var dev3 = c.Resolve<Developer>(
                 new NamedParameter("timeScheduler", timeScheduler), 
-                new NamedParameter("name", "Sus"));
+                new NamedParameter("name", "Илья"));
+            #endregion
 
             var loop = new EventLoop(timeScheduler, broker);
 
@@ -35,18 +37,19 @@ namespace DevelopmentRxConsole
 
             timeScheduler.Schedule(ModelTimeSpan.FromModelTimeUnits(3), () =>
             {
-                Console.WriteLine("hui"); 
+                Console.WriteLine("Случается на 3 шаге модельного времени"); 
             });
             return loop.Run(time =>
             {
                 time.OnUniformTestPassed(t =>
                 {
-                    manager.GiveNewTaskToTeam("1");
-                }, density: 0.2);
+                    manager.GiveNewTaskToTeam("'Важная задача'");
+                }, density: 0.5);
                     
             }, 15);
         }
 
+#region Init
         private static void Main()
         {
             GlobalConfiguration.Configuration.UseMemoryStorage();
@@ -76,4 +79,5 @@ namespace DevelopmentRxConsole
             server.Dispose();
         }
     }
+#endregion
 }

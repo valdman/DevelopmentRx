@@ -20,15 +20,18 @@ namespace Sample
 
         public void DevelopTask(string taskToDo)
         {
-            Console.WriteLine($"Start {taskToDo} on {TimeScheduler.CurrentTime} by ${Name}");
+            Console.WriteLine($"{Name} начал делать {taskToDo} в {TimeScheduler.CurrentTime}");
+            var abort = TimeScheduler.Schedule(ModelTimeSpan.FromModelTimeUnits(3), 
+                () => { Console.WriteLine($"{Name} завершил работу над {taskToDo}"); });
+            
             AbortCurrentJob = TimeScheduler.Schedule(ModelTimeSpan.FromModelTimeUnits(5),
                 () =>
                 {
-                    Console.WriteLine($"Finish {taskToDo} on {TimeScheduler.CurrentTime} by ${Name}");
+                    Console.WriteLine($"Остановлена работа над {taskToDo} в {TimeScheduler.CurrentTime}");
                 });
         }
         
-        public string Name { get; }
+        public string Name { get; } 
 
         private Action AbortCurrentJob { get; set; } = () => { };
     }

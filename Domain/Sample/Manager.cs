@@ -14,7 +14,7 @@ namespace Sample
 
         public void GiveNewTaskToTeam(string task)
         {
-            Console.WriteLine($"Publish {task} on {TimeScheduler.CurrentTime}");
+            Console.WriteLine($"Опубликована {task} в {TimeScheduler.CurrentTime}");
             Broker.Publish(new NewDemandingsPublished(task));
         }
     }
